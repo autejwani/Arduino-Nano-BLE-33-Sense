@@ -18,9 +18,7 @@
 
 #define BLE33_SAMPLERATE_DELAY_MS (1000)
 
-float /*x_acc, y_acc, z_acc, x_gyr, y_gyr, z_gyr,*/ x_mag, y_mag, z_mag;
-
-float scale_fac = 9.8;
+float x_acc, y_acc, z_acc, x_gyr, y_gyr, z_gyr, x_mag, y_mag, z_mag, scale_fac = 9.8;
 
 void setup() {
   Serial.begin(9600);
@@ -51,35 +49,19 @@ void setup() {
 }
 
 void loop() {
- /* if (IMU.accelerationAvailable()) {
+  if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(x_acc, y_acc, z_acc);
-
     Serial.print("Accelerometer data: x = " + String(x_acc * scale_fac, 3) + "\t\t" + "y = " + String(y_acc * scale_fac, 3) + '\t' + "z = " + String(z_acc * scale_fac, 3) + '\n');
   }
 
   if (IMU.gyroscopeAvailable()) {
     IMU.readGyroscope(x_gyr, y_gyr, z_gyr);
-
-   // Serial.print("Gyroscope data:     x = " + String(x_gyr, 3) + "\t\t" + "y = " + String(y_gyr, 3) + '\t' + "z = " + String(z_gyr, 3) + '\n');
-   Serial.print(x_gyr);
-  Serial.print('\t');
-  Serial.print(y_gyr);
-  Serial.print('\t');
-  Serial.print(z_gyr);
-  Serial.println();
-  }*/
+    Serial.print("Gyroscope data:     x = " + String(x_gyr, 3) + "\t\t" + "y = " + String(y_gyr, 3) + '\t' + "z = " + String(z_gyr, 3) + '\n');
+  }
   
   if (IMU.magneticFieldAvailable()) {
     IMU.readMagneticField(x_mag, y_mag, z_mag);
-
-   // Serial.print("Magnetometer data:  x = " + String(x_mag, 3) + "\t\t" + "y = " + String(y_mag, 3) + '\t' + "z = " + String(z_mag, 3) + '\n');
- Serial.print(x_mag);
-  Serial.print('\t');
-  Serial.print(y_mag);
-  Serial.print('\t');
-  Serial.print(z_mag);
-  Serial.println();
-   
+    Serial.print("Magnetometer data:  x = " + String(x_mag, 3) + "\t\t" + "y = " + String(y_mag, 3) + '\t' + "z = " + String(z_mag, 3) + '\n');
   } 
 delay(100);
 }
