@@ -15,16 +15,36 @@
 */
 
 #include <Arduino_LSM9DS1.h>
+#include <ArduinoBLE.h>
 #include <math.h>
+#define BLE33_SAMPLERATE_DELAY_MS (1000)
 
 double theta, phi, psi, theta_deg, phi_deg, psi_deg, Bx2, By2, Bz2, alpha = 0.01;
 float x_acc, y_acc, z_acc, x_mag, y_mag, z_mag;
 
+BLEService sensorService("8401a9ba-57bb-11ed-9b6a-0242ac120002");  // User defined service
+
+BLEStringCharacteristic sensorCharacteristic("8401ac80-57bb-11ed-9b6a-0242ac120002",  // standard 16-bit characteristic UUID
+    BLERead, 13); // remote clients will only be able to read this
+
 void setup() {
   Serial.begin(9600);
-  while (!Serial);
-  Serial.println("Started");
+  
+  if (!BLE.begin()) {   // initialize BLE
+    Serial.println("starting BLE failed!");
+    while (1);
+  }
 
+  BLE.setLocalName("Nano33BLE");  // Set name for connection
+  BLE.setAdvertisedService(sensorService); // Advertise service
+  sensorService.addCharacteristic(sensorCharacteristic); // Add characteristic to service
+  BLE.addService(sensorService); // Add service
+
+  BLE.advertise();  // Start advertising
+  Serial.print("Peripheral device MAC: ");
+  Serial.println(BLE.address());
+  Serial.println("Waiting for connections...");
+  
   // Initialize the IMU
   
   if (!IMU.begin()) {
@@ -35,8 +55,16 @@ void setup() {
 
 void loop() {
 
+BLEDevice central = BLE.central();  // Wait for a BLE central to connect
+
+  // if a central is connected to the peripheral:
+  if (central) {
+    Serial.print("Connected to central MAC: ");
+    // print the central's BT address:
+    Serial.println(central.address());
+    
   // Read the x_acc, y_acc, and z_acc axis acceleration data
-  
+ 
   if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(x_acc, y_acc, z_acc);
   }
@@ -71,10 +99,17 @@ void loop() {
   psi_deg = psi*180.0/PI;
 
   // Print the theta, phi, and psi tilt angles
-  
+
+//  Serial.print("Pitch: ");
   Serial.print(theta_deg);
   Serial.print(',');
   Serial.print(phi_deg);
   Serial.print(',');
+//  Serial.print("Yaw: ");
   Serial.println(psi_deg);
+
+  sensorCharacteristic.writeValue(String(theta_deg));
+  
+  delay(BLE33_SAMPLERATE_DELAY_MS);
+  }
 }
